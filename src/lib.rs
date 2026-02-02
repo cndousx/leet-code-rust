@@ -50,6 +50,7 @@ mod _144_preorder_traversal;
 mod _145_postorder_traversal;
 mod _14_longest_common_prefix;
 mod _150_eval_rpn;
+mod _152_max_product;
 mod _153_find_min;
 mod _154_find_min;
 mod _1584_min_cost_connect_points;
