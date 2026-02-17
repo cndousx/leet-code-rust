@@ -48,10 +48,10 @@ impl Solution {
             count += 1;
         }
         if len % 2 == 0 {
-            return (*nums.get(mid).unwrap() as f64 + *nums.get(mid - 1).unwrap() as f64) / 2.0;
-        };
-
-        *nums.get(mid).unwrap() as f64
+            (*nums.get(mid).unwrap() as f64 + *nums.get(mid - 1).unwrap() as f64) / 2.0
+        } else {
+            *nums.get(mid).unwrap() as f64
+        }
     }
 }
 
