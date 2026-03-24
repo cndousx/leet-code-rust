@@ -34,6 +34,7 @@ mod _114_flatten;
 mod _11_max_area;
 mod _1201_nth_ugly_number;
 mod _120_minimum_total;
+mod _121_max_profit;
 mod _122_max_profit;
 mod _1238_circular_permutation;
 mod _124_max_path_sum;
