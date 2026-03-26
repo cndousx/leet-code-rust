@@ -37,6 +37,7 @@ mod _120_minimum_total;
 mod _121_max_profit;
 mod _122_max_profit;
 mod _1238_circular_permutation;
+mod _123_max_profit;
 mod _124_max_path_sum;
 mod _128_longest_consecutive;
 mod _129_sum_numbers;
