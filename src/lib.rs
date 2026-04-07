@@ -52,6 +52,7 @@ mod _139_word_break;
 mod _13_roman_to_int;
 mod _144_preorder_traversal;
 mod _145_postorder_traversal;
+mod _146_lru_cache;
 mod _14_longest_common_prefix;
 mod _150_eval_rpn;
 mod _152_max_product;
