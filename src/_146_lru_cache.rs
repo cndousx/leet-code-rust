@@ -14,6 +14,8 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 struct LRUCache {
     /// 容量
     capacity: usize,
+    /// caches大小
+    size: usize,
     /// 缓存
     cachs: HashMap<i32, Rc<RefCell<Node>>>,
     /// 双链表头节点
@@ -70,6 +72,7 @@ impl LRUCache {
         tail.borrow_mut().prev = Some(head.clone());
         LRUCache {
             capacity: capacity as usize,
+            size: 0,
             cachs: HashMap::new(),
             head: head,
             tail: tail,
@@ -124,7 +127,7 @@ impl LRUCache {
         }
 
         // 如果缓存已满，删除尾节点
-        if self.cachs.len() >= self.capacity {
+        if self.size >= self.capacity {
             let tail_prev = self.tail.borrow().prev.as_ref().unwrap().clone();
             let removed_key = tail_prev.borrow().key;
 
@@ -137,12 +140,14 @@ impl LRUCache {
 
             // 从哈希表中移除
             self.cachs.remove(&removed_key);
+            self.size -= 1;
         }
 
         // 插入新节点
         let new_node = Node::new(key, value);
         self.add_to_head(new_node.clone());
         self.cachs.insert(key, new_node);
+        self.size += 1;
     }
 
     fn remove_node(&mut self, node: Rc<RefCell<Node>>) {
