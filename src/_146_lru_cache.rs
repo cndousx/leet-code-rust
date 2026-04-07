@@ -185,8 +185,8 @@ mod tests {
     fn t1() {
         let mut lru: LRUCache = LRUCache::new(2);
         lru.put(1, 1); // 缓存是 {1=1}
-        lru.put(2, 2); // 缓存是 {1=1, 2=2}
-        assert_eq!(lru.get(1), 1); // 返回 1
+        lru.put(2, 2); // 缓存是 {2=2, 1=1}
+        assert_eq!(lru.get(1), 1); // 返回 1,get(1)之后缓存变为 {1=1, 2=2}
         lru.put(3, 3); // 该操作会使得关键字 2 作废，缓存是 {1=1, 3=3}
         assert_eq!(lru.get(2), -1); // 返回 -1 (未找到)
         lru.put(4, 4); // 该操作会使得关键字 1 作废，缓存是 {4=4, 3=3}
