@@ -1,62 +1,154 @@
-use std::collections::HashMap;
-use std::{cell::RefCell, rc::Rc};
+use std::cell::RefCell;
+use std::collections::{BTreeMap, HashMap};
+use std::rc::Rc;
 
 ///
 /// [460. LFU 缓存](https://leetcode.cn/problems/lfu-cache/)
 ///
+/// LFU 的核心思想
+/// - 基于访问频率：LFU 会为每个缓存项维护一个访问计数器（frequency），每次访问（get 或 put）该项时，计数器就 +1。
+/// - 淘汰规则：当缓存已满，需要插入新数据时，优先移除访问频率最低（使用次数最少）的项。
+/// - 频率相同时的处理：如果多个项的频率相同，通常会进一步结合 LRU（Least Recently Used，最近最少使用） 策略，
+/// 即在同频率的项中，移除最久未被访问的那一个（或最早进入的）。
 struct LFUCache {
-    /// 容量
-    capacity: usize,
-    /// 当前容量
-    size: usize,
-    /// key 数据
-    cachs: HashMap<i32, Rc<RefCell<Node>>>,
-    /// 当前最小频次
-    min_frequency: usize,
-    // 频次桶
-    frequency_buckets: HashMap<usize, Rc<RefCell<FrequencyBucket>>>,
+    capacity: i32,
+    curr: i32,
+    data: BTreeMap<i32, LList>, // count: list
+    memo: HashMap<i32, LPtr>,   // key: node
 }
-struct Node {
+
+type LPtr = Rc<RefCell<LNode>>;
+
+struct LNode {
     key: i32,
     value: i32,
-    /// 访问频次
-    frequency: usize,
+    count: i32,
+    prev: Option<LPtr>,
+    next: Option<LPtr>,
 }
-struct FrequencyBucket {
-    buckets: Vec<Rc<RefCell<Node>>>,
-}
-impl Node {
-    fn new(key: i32, value: i32) -> Rc<RefCell<Node>> {
-        Rc::new(RefCell::new(Node {
-            key: key,
-            value: value,
-            frequency: 0,
-        }))
+
+impl LNode {
+    fn new(key: i32, value: i32) -> Self {
+        Self {
+            key,
+            value,
+            count: 1,
+            prev: None,
+            next: None,
+        }
     }
 }
-impl FrequencyBucket {
-    fn new() -> Rc<RefCell<FrequencyBucket>> {
-        Rc::new(RefCell::new(FrequencyBucket {
-            buckets: Vec::new(),
-        }))
-    }
-    fn len(&self) -> usize {
-        self.buckets.len()
+
+struct LList {
+    // root最旧, root -> prev最新;
+    root: Option<LPtr>,
+}
+
+impl LList {
+    fn new() -> Self {
+        Self { root: None }
     }
 
-    fn push(&mut self, node: Rc<RefCell<Node>>) {
-        self.buckets.push(node);
-    }
-    fn remove(&mut self, node: Rc<RefCell<Node>>) {
-        // 题目中说明key是唯一的
-        self.buckets.retain(|e| e.borrow().key != node.borrow().key);
-    }
-    fn remove_first(&mut self) -> Option<Rc<RefCell<Node>>> {
-        // 题目中说明key是唯一的
-        if self.buckets.len() == 0 {
-            return None;
+    fn new_with_value(key: i32, value: i32) -> Self {
+        let node = LNode::new(key, value);
+        let root = Rc::new(RefCell::new(node));
+        {
+            let mut m = root.borrow_mut();
+            m.prev = Some(Rc::clone(&root));
+            m.next = Some(Rc::clone(&root));
         }
-        Some(self.buckets.remove(0))
+        Self { root: Some(root) }
+    }
+
+    fn new_with_node(node: LPtr) -> Self {
+        {
+            let mut m = node.borrow_mut();
+            m.prev = Some(Rc::clone(&node));
+            m.next = Some(Rc::clone(&node));
+        }
+        Self { root: Some(node) }
+    }
+
+    fn ptr_eq(left: &LPtr, right: &LPtr) -> bool {
+        Rc::<RefCell<LNode>>::ptr_eq(left, right)
+    }
+
+    fn move_out(&mut self, node: LPtr) -> bool {
+        // 将node从self中移除; 需要确保node在自身内部;
+        if Self::ptr_eq(&node, node.borrow().prev.as_ref().unwrap()) {
+            // 唯一节点;
+            {
+                let mut m = node.borrow_mut();
+                m.next.take();
+                m.prev.take();
+            }
+            // 删除root节点;
+            self.root.take();
+            true
+        } else {
+            // 不唯一的节点, 需要执行移动;
+            let (prev, next) = {
+                let mut m = node.borrow_mut();
+                (m.prev.take().unwrap(), m.next.take().unwrap())
+            };
+            prev.borrow_mut().next = Some(Rc::clone(&next));
+            next.borrow_mut().prev = Some(prev);
+            // 检查是否与root相等; 相等则更新root为下一个节点;
+            let root_ref = self.root.as_ref().unwrap();
+            if Self::ptr_eq(&node, root_ref) {
+                self.root.replace(next);
+            }
+            false
+        }
+    }
+
+    fn move_in(&mut self, node: LPtr) {
+        // 将node移入self; 需要确保node不在自身内;
+        if self.root.is_none() {
+            let prev = Rc::clone(&node);
+            let next = Rc::clone(&node);
+            {
+                let mut m = node.borrow_mut();
+                m.prev = Some(prev);
+                m.next = Some(next);
+            }
+            self.root = Some(node);
+        } else {
+            // node最新, 接到root -> prev;
+            let root = Rc::clone(self.root.as_ref().unwrap());
+            let last = Rc::clone(root.borrow().prev.as_ref().unwrap());
+            last.borrow_mut().next = Some(Rc::clone(&node));
+            root.borrow_mut().prev = Some(Rc::clone(&node));
+            let mut m = node.borrow_mut();
+            m.prev = Some(last);
+            m.next = Some(root);
+        }
+    }
+
+    fn pop(&mut self) -> LPtr {
+        // 取出最旧的一个节点;
+        let node = Rc::clone(self.root.as_ref().unwrap());
+        self.move_out(Rc::clone(&node));
+        node
+    }
+
+    fn push(&mut self, key: i32, value: i32) {
+        let node = LNode::new(key, value);
+        let root = Rc::new(RefCell::new(node));
+        self.move_in(root);
+    }
+}
+
+impl Drop for LList {
+    fn drop(&mut self) {
+        if let Some(node) = self.root.take() {
+            node.borrow_mut().prev.take();
+            let mut node_next = node.borrow_mut().next.take();
+            while let Some(next) = node_next {
+                next.borrow_mut().prev.take();
+                node_next = next.borrow_mut().next.take();
+            }
+        }
     }
 }
 
@@ -66,119 +158,88 @@ impl FrequencyBucket {
  */
 impl LFUCache {
     fn new(capacity: i32) -> Self {
-        LFUCache {
-            capacity: capacity as usize,
-            size: 0,
-            cachs: HashMap::new(),
-            min_frequency: 0,
-            frequency_buckets: HashMap::new(),
+        Self {
+            capacity,
+            curr: 0,
+            data: BTreeMap::new(),
+            memo: HashMap::new(),
         }
     }
 
     fn get(&mut self, key: i32) -> i32 {
-        match self.cachs.get(&key) {
-            None => -1,
-            Some(node) => {
-                let old_freq = node.borrow_mut().frequency;
-                let new_freq = old_freq + 1;
-                match self.frequency_buckets.get_mut(&old_freq) {
-                    Some(bucket) => {
-                        bucket.borrow_mut().remove(node.clone());
-                        // if bucket.borrow().len() == 0 {
-                        //     // 这里不用移除vec，更新min_frequency即可
-                        // }
-                    }
-                    None => {}
+        if let Some(node) = self.memo.get(&key) {
+            let node = Rc::clone(node);
+            let (count, value) = {
+                let mut m = node.borrow_mut();
+                m.count += 1;
+                (m.count, m.value)
+            };
+            {
+                let last = self.data.get_mut(&(count - 1)).unwrap();
+                let empty = last.move_out(Rc::clone(&node));
+                if empty {
+                    self.data.remove(&(count - 1));
                 }
-                let buk = self
-                    .frequency_buckets
-                    .entry(new_freq)
-                    .or_insert(FrequencyBucket::new());
-                buk.borrow_mut().push(node.clone());
-                // 更新访问频次
-                node.borrow_mut().frequency = new_freq;
-                let v = node.borrow().value;
-                self.update_min_frequency();
-                // 返回数据
-                v
             }
+            if let Some(mut list) = self.data.get_mut(&count) {
+                list.move_in(node);
+            } else {
+                let list = LList::new_with_node(node);
+                self.data.insert(count, list);
+            }
+            value
+        } else {
+            -1
         }
     }
-    fn update_min_frequency(&mut self) {
-        self.min_frequency = *(self
-            .frequency_buckets
-            .iter()
-            .filter(|(a, b)| b.borrow().len() > 0)
-            .map(|(a, b)| a)
-            .min()
-            .unwrap_or(&1));
-    }
-    fn min_frequency(&self) -> usize {
-        *(self
-            .frequency_buckets
-            .iter()
-            .filter(|(a, b)| b.borrow().len() > 0)
-            .map(|(a, b)| a)
-            .min()
-            .unwrap_or(&1))
-    }
-    fn put(&mut self, key: i32, value: i32) {
-        if self.cachs.contains_key(&key) {
-            // 存在则更新数据
-            let node = self.cachs.get(&key).unwrap().clone();
-            node.borrow_mut().value = value;
-            let old_freq = node.borrow().frequency;
-            let new_freq = old_freq + 1;
-            match self.frequency_buckets.get_mut(&self.min_frequency) {
-                Some(buk) => {
-                    buk.borrow_mut().remove(node.clone());
-                }
-                None => {}
-            }
 
-            let buk = self
-                .frequency_buckets
-                .entry(new_freq)
-                .or_insert(FrequencyBucket::new());
-            buk.borrow_mut().push(node.clone());
-            self.update_min_frequency();
+    fn put(&mut self, key: i32, value: i32) {
+        if self.get(key) >= 0 {
+            let node = Rc::clone(self.memo.get(&key).unwrap());
+            node.borrow_mut().value = value;
             return;
         }
-
-        let new_node = Node::new(key, value);
-        let new_freq = 1;
-        new_node.borrow_mut().frequency = new_freq;
-
-        if self.size >= self.capacity {
-            // 移除频次最小的
-            match self.frequency_buckets.get_mut(&self.min_frequency) {
-                Some(buk) => {
-                    let rm = buk.borrow_mut().remove_first();
-                    match rm {
-                        Some(s) => {
-                            let rmk = s.borrow().key;
-                            self.cachs.remove(&rmk);
-                        }
-                        _ => {}
-                    }
-                }
-                None => {}
+        if self.curr < self.capacity {
+            // 新增
+            self.curr += 1;
+            let node = Rc::new(RefCell::new(LNode::new(key, value)));
+            if let Some(mut list) = self.data.get_mut(&1) {
+                list.move_in(Rc::clone(&node));
+            } else {
+                let list = LList::new_with_node(Rc::clone(&node));
+                self.data.insert(1, list);
             }
-
-            self.size -= 1;
+            self.memo.insert(key, node);
+        } else {
+            // 替换
+            // 1. 删除旧node
+            let (node, empty, count) = {
+                let mut entry = self.data.first_entry().unwrap();
+                let mut list = entry.get_mut();
+                let node = list.pop();
+                let empty = list.root.is_none();
+                (node, empty, *entry.key())
+            };
+            if empty {
+                self.data.remove(&count);
+            }
+            let old_key = node.borrow().key;
+            self.memo.remove(&old_key);
+            // 添加新key;
+            {
+                let mut m = node.borrow_mut();
+                m.count = 1;
+                m.key = key;
+                m.value = value;
+            }
+            if let Some(mut list) = self.data.get_mut(&1) {
+                list.move_in(Rc::clone(&node));
+            } else {
+                let list = LList::new_with_node(Rc::clone(&node));
+                self.data.insert(1, list);
+            }
+            self.memo.insert(key, node);
         }
-
-        let buk = self
-            .frequency_buckets
-            .entry(new_freq)
-            .or_insert(FrequencyBucket::new());
-        buk.borrow_mut().push(new_node.clone());
-
-        self.cachs.insert(key, new_node.clone());
-        // 这个节点是新加入的，访问次数为1，一定是最小的
-        self.min_frequency = new_freq;
-
-        self.size += 1;
     }
 }
 
