@@ -161,6 +161,7 @@ mod _455_find_content_children;
 mod _456_find132pattern;
 mod _459_repeated_substring_pattern;
 mod _45_jump;
+mod _460_lfu_cache;
 mod _463_island_perimeter;
 mod _46_permute;
 mod _473_makesquare;
