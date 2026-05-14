@@ -1,40 +1,55 @@
 use crate::common::linked_list::*;
+
 ///
 /// [61. 旋转链表](https://leetcode.cn/problems/rotate-list/)
 ///
 struct Solution;
+
 impl Solution {
     pub fn rotate_right(head: Option<Box<ListNode>>, k: i32) -> Option<Box<ListNode>> {
-        let mut curr = &head;
-        let mut len = 0;
-        while let Some(node) = curr {
-            len += 1;
-            curr = &node.next;
+        // 计算链表长度
+        let mut current = &head;
+        let mut length = 0;
+        while let Some(node) = current {
+            length += 1;
+            current = &node.next;
         }
-        if len == 0 {
-            return head;
-        }
-        let k = k % len;
-        if k == 0 {
-            return head;
-        }
-        let mut head = head;
-        let mut find_tail_pre = &mut head;
-        let mut pos = 0;
-        while pos != len - k - 1 {
-            find_tail_pre = &mut find_tail_pre.as_mut().unwrap().next;
-            pos += 1;
-        }
-        let mut new_head = find_tail_pre.as_mut().unwrap().next.take();
 
-        let mut find_tail = &mut new_head;
-        while let Some(node) = find_tail {
-            if node.next.is_none() {
-                node.next = head;
+        // 边界条件处理
+        if length == 0 || k % length == 0 {
+            return head;
+        }
+
+        // 实际需要向右移动的位置数
+        let actual_rotation = k % length;
+        // 分割点位置
+        let split_position = length - actual_rotation;
+
+        let mut head_node = head;
+        let mut prev_to_split_point = &mut head_node;
+
+        // 找到分割点前一个节点
+        for _ in 0..split_position - 1 {
+            prev_to_split_point = &mut prev_to_split_point.as_mut().unwrap().next;
+        }
+
+        // 新头节点为分割点后的节点
+        let mut new_head = prev_to_split_point.as_mut().unwrap().next.take();
+
+        // 找到新头节点的尾部，并连接原头部
+        let mut tail_node = &mut new_head;
+        loop {
+            if let Some(node) = tail_node {
+                if node.next.is_none() {
+                    node.next = head_node;
+                    break;
+                }
+                tail_node = &mut node.next;
+            } else {
                 break;
             }
-            find_tail = &mut node.next;
         }
+
         new_head
     }
 }
