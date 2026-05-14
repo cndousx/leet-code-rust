@@ -205,6 +205,7 @@ mod _605_can_place_flowers;
 mod _60_get_permutation;
 mod _611_triangle_number;
 mod _617_merge_trees;
+mod _61_rotate_right;
 mod _62_unique_paths;
 mod _630_schedule_course;
 mod _63_unique_paths_with_obstacles;
