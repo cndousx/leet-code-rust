@@ -16,32 +16,6 @@ impl Solution {
             len += 1;
             current = &node.next;
         }
-        if len <= k {
-            let mut ans = vec![];
-            let mut current = head;
-            while current.is_some() {
-                let next = current.as_mut().unwrap().next.take();
-                ans.push(current);
-                current = next;
-            }
-            while ans.len() < k {
-                ans.push(None);
-            }
-            return ans;
-        }
-
-        //  如果extra 等于0，则每个部分大小相同
-        //  如果extra大于0，则部分长度加1，extra减1
-        //  任意两部分的长度差距不能超过 1
-        //  extra也要分，
-        //  10%3 =1
-        //  4 3 3
-        //  11 %3 =2
-        //  4 4 3
-        //  12 %3 =0
-        //  4 4 4
-        //  13%3 =1
-        //  5 4 4
 
         let part = len / k;
         let extra = len % k;
@@ -67,10 +41,13 @@ impl Solution {
                     }
                     break;
                 } else {
-                    if current.is_some() {
-                        current = &mut current.as_mut().unwrap().next;
-                    } else {
-                        break;
+                    match current {
+                        Some(ln) => {
+                            current = &mut ln.next;
+                        }
+                        None => {
+                            break;
+                        }
                     }
                 }
             }
