@@ -224,6 +224,7 @@ mod _700_search_bst;
 mod _707_design_linked_list;
 mod _70_climb_stairs;
 mod _713_num_subarray_product_less_than_k;
+mod _725_split_list_to_parts;
 mod _738_monotone_increasing_digits;
 mod _739_daily_temperatures;
 mod _741_cherry_pickup;
