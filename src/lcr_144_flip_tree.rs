@@ -10,7 +10,7 @@ impl Solution {
         if root.is_none() {
             return None;
         }
-        let rc = root.clone().unwrap();
+        let rc = root.clone()?;
         let mut x = rc.borrow_mut();
         let left = x.left.clone();
         let right = x.right.clone();

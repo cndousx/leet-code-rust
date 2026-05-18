@@ -11,9 +11,9 @@ impl Solution {
         let mut dummy = Some(Box::new(ListNode { val: 0, next: head }));
         let mut current = &mut dummy;
         let mut len = 0;
-        while current.as_ref().unwrap().next.is_some() {
+        while current.as_ref()?.next.is_some() {
             len += 1;
-            current = &mut current.as_mut().unwrap().next;
+            current = &mut current.as_mut()?.next;
         }
         let target_index = len - n;
         if target_index < 0 {
@@ -21,7 +21,7 @@ impl Solution {
         };
         let mut del_pre_node = &mut dummy;
         for i in 0..target_index {
-            del_pre_node = &mut del_pre_node.as_mut().unwrap().next;
+            del_pre_node = &mut del_pre_node.as_mut()?.next;
         }
         if let Some(pre_node) = del_pre_node {
             let mut need_del_node = &mut pre_node.next;

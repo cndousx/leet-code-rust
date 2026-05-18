@@ -17,7 +17,7 @@ impl Solution {
                     second.next = Some(first);
                     node.next = Some(second);
                     // 更新 curr 到下一对
-                    curr = &mut node.next.as_mut().unwrap().next;
+                    curr = &mut node.next.as_mut()?.next;
                 } else {
                     break;
                 }

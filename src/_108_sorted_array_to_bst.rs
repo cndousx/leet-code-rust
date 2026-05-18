@@ -18,7 +18,7 @@ impl Solution {
         }
         let middle = (start + end) / 2;
         let mut root = Some(Rc::new(RefCell::new(TreeNode::new(nums[middle]))));
-        let rc_mut = root.as_mut().unwrap();
+        let rc_mut = root.as_mut()?;
         rc_mut.borrow_mut().left = Self::dfs(nums, start, middle);
         rc_mut.borrow_mut().right = Self::dfs(nums, middle + 1, end);
         root

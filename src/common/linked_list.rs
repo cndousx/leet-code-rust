@@ -36,7 +36,7 @@ pub fn vec_to_linked_list(vec: &Vec<i32>, dummy_head: bool) -> Option<Box<ListNo
     for i in 0..vec.len() {
         let value = vec[i];
         curr.next = Some(Box::new(ListNode::new(value)));
-        curr = curr.next.as_mut().unwrap();
+        curr = curr.next.as_mut()?;
     }
     if dummy_head { Some(dummy) } else { dummy.next }
 }

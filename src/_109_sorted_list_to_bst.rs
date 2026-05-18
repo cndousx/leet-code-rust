@@ -1,6 +1,6 @@
 use crate::common::binary_tree::TreeNode;
-use crate::common::linked_list::vec_to_linked_list;
 use crate::common::linked_list::ListNode;
+use crate::common::linked_list::vec_to_linked_list;
 use std::cell::RefCell;
 use std::rc::Rc;
 ///
@@ -31,7 +31,7 @@ impl Solution {
         let middle = (start + end) / 2;
         let val = nums[middle];
         let mut root = Some(Rc::new(RefCell::new(TreeNode::new(val))));
-        let rc = root.as_mut().unwrap();
+        let rc = root.as_mut()?;
         rc.borrow_mut().left = Self::dfs(nums, start, middle);
         rc.borrow_mut().right = Self::dfs(nums, middle + 1, end);
         root

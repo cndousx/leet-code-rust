@@ -30,11 +30,11 @@ impl Solution {
 
         // 找到分割点前一个节点
         for _ in 0..split_position - 1 {
-            prev_to_split_point = &mut prev_to_split_point.as_mut().unwrap().next;
+            prev_to_split_point = &mut prev_to_split_point.as_mut()?.next;
         }
 
         // 新头节点为分割点后的节点
-        let mut new_head = prev_to_split_point.as_mut().unwrap().next.take();
+        let mut new_head = prev_to_split_point.as_mut()?.next.take();
 
         // 找到新头节点的尾部，并连接原头部
         let mut tail_node = &mut new_head;
