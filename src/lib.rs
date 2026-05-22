@@ -211,6 +211,7 @@ mod _630_schedule_course;
 mod _63_unique_paths_with_obstacles;
 mod _64_min_path_sum;
 mod _654_construct_maximum_binary_tree;
+mod _65_is_number;
 mod _672_flip_lights;
 mod _679_judge_point24;
 mod _67_add_binary;
