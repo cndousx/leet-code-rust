@@ -72,6 +72,7 @@ mod _189_rotate;
 mod _18_four_sum;
 mod _1905_count_sub_islands;
 mod _1971_valid_path;
+mod _198_rob;
 mod _199_right_side_view;
 mod _19_remove_nth_from_end;
 mod _200_num_islands;
