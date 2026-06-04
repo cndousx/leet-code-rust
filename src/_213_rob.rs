@@ -18,18 +18,26 @@ impl Solution {
         if n == 1 {
             return nums[0];
         }
-
-        let mut max = i32::MIN;
-        for (start, end) in vec![(1, n - 1), (0, n - 2)] {
-            let mut dp = vec![0; n];
-            dp[start] = nums[start];
-            for i in start + 1..=end {
-                dp[i] = dp[(n + i - 1) % n].max(dp[(n + i - 2) % n] + nums[i]);
-            }
-            max = max.max(dp[end]);
+        if n == 2 {
+            return nums[0].max(nums[1]);
         }
 
-        return max;
+        // 线性打家劫舍函数（空间优化版）
+        let rob_linear = |start: usize, end: usize| -> i32 {
+            let mut prev2 = 0;
+            let mut prev1 = 0;
+            for i in start..=end {
+                let curr = prev1.max(prev2 + nums[i]);
+                prev2 = prev1;
+                prev1 = curr;
+            }
+            prev1
+        };
+
+        // 两种情况取最大值
+        // 情况1：不偷第一家 → 可以偷最后一家
+        // 情况2：不偷最后一家 → 可以偷第一家
+        rob_linear(1, n - 1).max(rob_linear(0, n - 2))
     }
 }
 
