@@ -86,6 +86,7 @@ mod _210_find_order;
 mod _213_rob;
 mod _215_find_kth_largest;
 mod _216_combination_sum3;
+mod _221_maximal_square;
 mod _2221_triangular_sum;
 mod _222_count_nodes;
 mod _224_calculate;
