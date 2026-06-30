@@ -15,12 +15,10 @@ impl Solution {
             .iter()
             .map(|s| s.chars().collect::<Vec<_>>())
             .collect::<Vec<_>>();
-        let mut set = HashSet::new();
-        for sticker in &stickers {
-            for ch in sticker {
-                set.insert(*ch);
-            }
-        }
+        let set = stickers
+            .iter()
+            .flat_map(|row| row.iter())
+            .collect::<HashSet<_>>();
         for ch in &target_chars {
             if !set.contains(ch) {
                 return -1;
