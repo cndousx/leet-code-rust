@@ -220,6 +220,7 @@ mod _679_judge_point24;
 mod _67_add_binary;
 mod _684_find_redundant_connection;
 mod _685_find_redundant_directed_connection;
+mod _691_min_stickers;
 mod _692_top_k_frequent;
 mod _695_max_area_of_island;
 mod _698_can_partition_k_subsets;
