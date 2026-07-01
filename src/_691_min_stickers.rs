@@ -36,7 +36,7 @@ impl Solution {
                         remain.remove(index);
                     }
                 }
-                if !visited.insert(remain.iter().collect::<String>()) {
+                if !visited.insert(remain.iter().collect::<_>()) {
                     continue;
                 }
                 if remain.is_empty() {
