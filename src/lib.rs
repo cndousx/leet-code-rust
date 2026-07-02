@@ -31,6 +31,7 @@ mod _1129_shortest_alternating_paths;
 mod _112_has_path_sum;
 mod _113_path_sum;
 mod _114_flatten;
+mod _1160_count_characters;
 mod _11_max_area;
 mod _1201_nth_ugly_number;
 mod _120_minimum_total;
