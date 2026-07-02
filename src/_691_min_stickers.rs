@@ -53,10 +53,7 @@ impl Solution {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    fn to_string_vec(vs: Vec<&str>) -> Vec<String> {
-        vs.iter().map(|s| s.to_string()).collect::<Vec<String>>()
-    }
+    use crate::common::str_util::to_string_vec;
 
     #[test]
     fn t1() {
