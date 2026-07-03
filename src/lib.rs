@@ -95,6 +95,7 @@ mod _226_invert_tree;
 mod _229_majority_element;
 mod _22_generate_parenthesis;
 mod _230_kth_smallest;
+mod _233_count_digit_one;
 mod _235_lowest_common_ancestor;
 mod _236_lowest_common_ancestor;
 mod _239_max_sliding_window;
