@@ -10,3 +10,5 @@ edition = "2024"
 maplit = "1.0"
 # itertools 扩展了标准库中提供的迭代器功能
 itertools = "0.15.0"
+# 高精度
+rust_decimal = "1"
