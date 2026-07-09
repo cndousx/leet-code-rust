@@ -265,6 +265,7 @@ mod _887_super_egg_drop;
 mod _88_merge;
 mod _89_gray_code;
 mod _90_subsets_with_dup;
+mod _918_max_subarray_sum_circular;
 mod _91_num_decodings;
 mod _94_inorder_traversal;
 mod _958_is_complete_tree;
