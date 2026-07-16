@@ -214,6 +214,7 @@ mod _617_merge_trees;
 mod _61_rotate_right;
 mod _62_unique_paths;
 mod _630_schedule_course;
+mod _638_shopping_offers;
 mod _63_unique_paths_with_obstacles;
 mod _64_min_path_sum;
 mod _654_construct_maximum_binary_tree;
