@@ -35,6 +35,7 @@ mod _1160_count_characters;
 mod _11_max_area;
 mod _1201_nth_ugly_number;
 mod _120_minimum_total;
+mod _1219_get_maximum_gold;
 mod _121_max_profit;
 mod _122_max_profit;
 mod _1238_circular_permutation;
