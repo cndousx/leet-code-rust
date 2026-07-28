@@ -18,25 +18,13 @@ impl Solution {
         let mut max_gold = 0;
         for i in 0..m {
             for j in 0..n {
-                let gold = dfs(
-                    &mut grid, i, j, 0, 25, // 最多25个格子有黄金
-                );
+                let gold = dfs(&mut grid, i, j);
                 max_gold = max_gold.max(gold);
             }
         }
 
         #[inline]
-        fn dfs(
-            grid: &mut Vec<Vec<i32>>,
-            i: usize,
-            j: usize,
-            collected: u8,
-            max_collect: u8,
-        ) -> i32 {
-            if collected > max_collect {
-                // 已开采的格子达到最大值
-                return 0;
-            }
+        fn dfs(grid: &mut Vec<Vec<i32>>, i: usize, j: usize) -> i32 {
             let m = grid.len();
             let n = grid[0].len();
 
@@ -50,15 +38,17 @@ impl Solution {
             // 标记已经开采
             grid[i][j] = 0;
 
-            let next = vec![(-1, 0), (0, 1), (0, -1), (1, 0)];
             let mut best_next_gold = 0;
-            for (_, (x, y)) in next.iter().enumerate() {
+            // 用数组替换vec，提高运行速度
+            // 数组: 栈上（小）/ 内联，零开销，无分配
+            // Vec<T>: 堆上分配，有堆分配 + 可能的 realloc
+            let directions = [(-1, 0), (1, 0), (0, -1), (0, 1)];
+            for (x, y) in &directions {
                 if let Ok(ni) = usize::try_from(i as i32 + x)
                     && let Ok(nj) = usize::try_from(j as i32 + y)
                 {
                     if ni < m && nj < n && grid[ni][nj] > 0 {
-                        best_next_gold =
-                            dfs(grid, ni, nj, collected + 1, max_collect).max(best_next_gold);
+                        best_next_gold = dfs(grid, ni, nj).max(best_next_gold);
                     }
                 }
             }
