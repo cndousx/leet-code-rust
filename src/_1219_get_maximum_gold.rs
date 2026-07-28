@@ -11,6 +11,7 @@ impl Solution {
         if grid.is_empty() {
             return 0;
         }
+        let mut grid = grid;
 
         let m = grid.len();
         let n = grid[0].len();
@@ -18,12 +19,7 @@ impl Solution {
         for i in 0..m {
             for j in 0..n {
                 let gold = dfs(
-                    &grid,
-                    &mut vec![vec![false; n]; m],
-                    i,
-                    j,
-                    0,
-                    25, // 最多25个格子有黄金
+                    &mut grid, i, j, 0, 25, // 最多25个格子有黄金
                 );
                 max_gold = max_gold.max(gold);
             }
@@ -31,8 +27,7 @@ impl Solution {
 
         #[inline]
         fn dfs(
-            grid: &Vec<Vec<i32>>,
-            visit: &mut Vec<Vec<bool>>,
+            grid: &mut Vec<Vec<i32>>,
             i: usize,
             j: usize,
             collected: u8,
@@ -48,14 +43,12 @@ impl Solution {
             if i >= m || j >= n {
                 return 0;
             }
-            if visit[i][j] {
+            let gold = grid[i][j];
+            if gold == 0 {
                 return 0;
             }
-            if grid[i][j] == 0 {
-                return 0;
-            }
-
-            visit[i][j] = true;
+            // 标记已经开采
+            grid[i][j] = 0;
 
             let next = vec![(-1, 0), (0, 1), (0, -1), (1, 0)];
             let mut best_next_gold = 0;
@@ -63,13 +56,15 @@ impl Solution {
                 if let Ok(ni) = usize::try_from(i as i32 + x)
                     && let Ok(nj) = usize::try_from(j as i32 + y)
                 {
-                    best_next_gold =
-                        dfs(grid, visit, ni, nj, collected + 1, max_collect).max(best_next_gold);
+                    if ni < m && nj < n && grid[ni][nj] > 0 {
+                        best_next_gold =
+                            dfs(grid, ni, nj, collected + 1, max_collect).max(best_next_gold);
+                    }
                 }
             }
             // 回溯
-            visit[i][j] = false;
-            grid[i][j] + best_next_gold
+            grid[i][j] = gold;
+            gold + best_next_gold
         }
 
         max_gold
