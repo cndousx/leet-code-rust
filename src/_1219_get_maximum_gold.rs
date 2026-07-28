@@ -20,8 +20,8 @@ impl Solution {
                 let gold = dfs(
                     &grid,
                     &mut vec![vec![false; n]; m],
-                    i as i32,
-                    j as i32,
+                    i,
+                    j,
                     0,
                     25, // 最多25个格子有黄金
                 );
@@ -29,19 +29,17 @@ impl Solution {
             }
         }
 
+        #[inline]
         fn dfs(
             grid: &Vec<Vec<i32>>,
             visit: &mut Vec<Vec<bool>>,
-            i: i32,
-            j: i32,
+            i: usize,
+            j: usize,
             collected: u8,
             max_collect: u8,
         ) -> i32 {
             if collected > max_collect {
                 // 已开采的格子达到最大值
-                return 0;
-            }
-            if i < 0 || j < 0 {
                 return 0;
             }
             let m = grid.len();
@@ -62,16 +60,18 @@ impl Solution {
             visit[i][j] = true;
 
             let next = vec![(-1, 0), (0, 1), (0, -1), (1, 0)];
-            let mut next_gold = 0;
+            let mut best_next_gold = 0;
             for (_, (x, y)) in next.iter().enumerate() {
-                let next_i = i as i32 + x;
-                let next_j = j as i32 + y;
-                next_gold =
-                    dfs(grid, visit, next_i, next_j, collected + 1, max_collect).max(next_gold);
+                if let Ok(ni) = usize::try_from(i as i32 + x)
+                    && let Ok(nj) = usize::try_from(j as i32 + y)
+                {
+                    best_next_gold =
+                        dfs(grid, visit, ni, nj, collected + 1, max_collect).max(best_next_gold);
+                }
             }
             // 回溯
             visit[i][j] = false;
-            grid[i][j] + next_gold
+            grid[i][j] + best_next_gold
         }
 
         max_gold
