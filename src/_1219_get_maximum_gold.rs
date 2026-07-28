@@ -45,8 +45,6 @@ impl Solution {
             let m = grid.len();
             let n = grid[0].len();
 
-            let i = i as usize;
-            let j = j as usize;
             if i >= m || j >= n {
                 return 0;
             }
