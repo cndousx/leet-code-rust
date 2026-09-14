@@ -130,6 +130,7 @@ mod _322_coin_change;
 mod _324_wiggle_sort;
 mod _327_count_range_sum;
 mod _32_longest_valid_parentheses;
+mod _332_find_itinerary;
 mod _337_rob;
 mod _33_search;
 mod _343_integer_break;
