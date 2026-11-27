@@ -6,9 +6,12 @@ edition = "2024"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# maplit 提供了 hashset! 和 btreeset! 宏，方便快速创建集合
-maplit = "1.0"
 # itertools 扩展了标准库中提供的迭代器功能
 itertools = "0.15.0"
+
+# 仅在单测中用到的库
+[dev-dependencies]
+# maplit 提供了 hashset! 和 btreeset! 宏，方便快速创建集合
+maplit = "1.0"
 # 高精度
 rust_decimal = "1"
